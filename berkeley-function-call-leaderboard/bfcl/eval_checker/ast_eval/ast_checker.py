@@ -111,12 +111,6 @@ def type_checker(
         if possible_answer_type != expected_type_converted:
             is_variable = True
 
-    # value is the same type as in function description
-    if type(value) == float and expected_type_converted == int:
-        try: 
-            value = int(value)
-        except:
-            pass
     if type(value) == expected_type_converted:
         # We don't need to do recursive check for simple types
         if nested_type_converted == None:

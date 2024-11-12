@@ -182,6 +182,19 @@ class GeminiHandler(BaseHandler):
                 result = [result]
             return result
 
+    def _convert_number_values(self, data):
+        """Converts float values with no decimal part to integers."""
+        if isinstance(data, float) and data.is_integer():
+            return int(data)
+        elif isinstance(data, dict):
+            return {
+                key: self._convert_number_values(value) for key, value in data.items()
+            }
+        elif isinstance(data, list):
+            return [self._convert_number_values(item) for item in data]
+        else:
+            return data
+
     def decode_execute(self, result):
         if "FC" not in self.model_name:
             result = result.replace("```tool_code\n", "").replace("\n```", "")
@@ -191,7 +204,7 @@ class GeminiHandler(BaseHandler):
             for function_call in result:
                 for func_name, func_args in function_call.items():
                     func_call_list.append(
-                        f"{func_name}({','.join([f'{k}={repr(v)}' for k, v in func_args.items()])})"
+                        f"{func_name}({','.join([f'{k}={repr(self._convert_number_values(v))}' for k, v in func_args.items()])})"
                     )
             return func_call_list
 
